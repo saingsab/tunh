@@ -2,7 +2,7 @@ use crate::{
     model::{AppState, QueryOption, Todo, UpdateTodoSchema},
     response::{GenericResponse, SingleTodoResponse, TodoData, TodoListResponse},
 };
-use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, patch, post, web::{self, Json}, HttpResponse, Responder, error};
 use chrono::prelude::*;
 use uuid::Uuid;
 
@@ -36,10 +36,34 @@ pub async fn todo_list_handler(
     HttpResponse::Ok().json(json_response)
 }
 
+#[get("/todos/{id}")]
+async fn get_todo_handler(path: web::Path<String>, data: web::Data<AppState>) -> impl Responder {
+    let vec = data.todo_db.lock().unwrap();
+
+    let id = path.into_inner();
+    let todo = vec.iter().find(|todo| todo.id == Some(id.to_owned()));
+
+    if todo.is_none() {
+        let error_response = GenericResponse {
+            status: "fail".to_string(),
+            message: format!("Todo with ID: {} not found", id),
+        };
+        return HttpResponse::NotFound().json(error_response);
+    }
+    let todo = todo.unwrap();
+    let json_response = SingleTodoResponse {
+        status: "sucess".to_string(),
+        data: TodoData { todo: todo.clone() },
+    };
+
+    HttpResponse::Ok().json(json_response)
+}
+
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("/api")
         .service(health_checker_handler)
-        .service(todo_list_handler);
+        .service(todo_list_handler)
+        .service(get_todo_handler);
 
     conf.service(scope);
 }
