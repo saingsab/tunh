@@ -1,10 +1,12 @@
 use crate::{
-    model::{AppState, QueryOption, Todo, UpdateTodoSchema},
+    model::{AppState, QueryOption, Todo},
     response::{GenericResponse, SingleTodoResponse, TodoData, TodoListResponse},
 };
-use actix_web::{delete, get, patch, post, web::{self, Json}, HttpResponse, Responder, error};
-use chrono::prelude::*;
-use uuid::Uuid;
+use actix_web::{
+    get,
+    web::{self},
+    HttpResponse, Responder,
+};
 
 #[get("/healthcheker")]
 async fn health_checker_handler() -> impl Responder {
@@ -24,14 +26,14 @@ pub async fn todo_list_handler(
     let todos = data.todo_db.lock().unwrap();
 
     let limit = opts.limit.unwrap_or(1);
-    let offset = (opts.page.unwrap_or(1) -1) * limit;
+    let offset = (opts.page.unwrap_or(1) - 1) * limit;
 
     let todos: Vec<Todo> = todos.clone().into_iter().skip(offset).take(limit).collect();
 
     let json_response = TodoListResponse {
         status: "success".to_string(),
         result: todos.len(),
-        todos
+        todos,
     };
     HttpResponse::Ok().json(json_response)
 }
@@ -64,6 +66,5 @@ pub fn config(conf: &mut web::ServiceConfig) {
         .service(health_checker_handler)
         .service(todo_list_handler)
         .service(get_todo_handler);
-
     conf.service(scope);
 }

@@ -19,7 +19,6 @@ async fn main() -> std::io::Result<()> {
 
     println!("🚀 Server started successfully");
 
-
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin("http://localhost:3000")
@@ -33,10 +32,10 @@ async fn main() -> std::io::Result<()> {
             .supports_credentials();
 
         App::new()
-        .app_data(app_data.clone())
-        .configure(handler::config)
-        .wrap(cors)
-        .wrap(Logger::default())
+            .app_data(app_data.clone())
+            .configure(handler::config)
+            .wrap(cors)
+            .wrap(Logger::default())
     })
     .bind(("127.0.0.1", 8088))?
     .run()
