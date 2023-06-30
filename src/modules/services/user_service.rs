@@ -1,0 +1,1 @@
+// User service: This service would be responsible for handling all requests related to users, such as creating new users, updating user profiles, and deleting users.
