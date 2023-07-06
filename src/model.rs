@@ -1,9 +1,11 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
+// use sqlx::FromRow;
+use uuid::Uuid;
 
 #[allow(non_snake_case)]
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Todo {
     pub id: Option<String>,
     pub title: String,
